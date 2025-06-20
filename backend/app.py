@@ -1,14 +1,9 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 import requests
-
-# Import blueprints
-from routes.auth import auth_bp
-from routes.routes import routes_bp
-from routes.transit import transit_bp
-from routes.map import map_bp
+from supabase import create_client
 
 # Load environment variables
 load_dotenv()
@@ -24,7 +19,18 @@ SUPABASE_KEY = os.getenv('SUPABASE_KEY')
 if not SUPABASE_URL or not SUPABASE_KEY:
     raise ValueError("Missing Supabase environment variables")
 
-# Register blueprints
+# Initialize Supabase client
+app.supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# Import and register blueprints
+from routes.auth import auth_bp, init_auth_service
+from routes.routes import routes_bp
+from routes.transit import transit_bp
+from routes.map import map_bp
+
+# Initialize auth service with Supabase client
+init_auth_service(app)
+
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
 app.register_blueprint(routes_bp, url_prefix='/api/routes')
 app.register_blueprint(transit_bp, url_prefix='/api')
@@ -48,8 +54,6 @@ def health_check():
         "message": "Flask backend is running",
         "database": db_status
     }), 200
-
-# Add your API routes here
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000) 

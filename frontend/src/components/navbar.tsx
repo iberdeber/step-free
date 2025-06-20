@@ -9,9 +9,32 @@ import { Button } from "./ui/button"
 import { NavigationMenu, NavigationMenuLink, NavigationMenuList } from "./ui/navigation-menu"
 import { SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet"
 import ModeToggle from "./mode-toggle"
-
+import { isAuthenticated, signOut } from "@/lib/api"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/lib/AuthContext"
 
 export function NavBar() {
+    const { isLoggedIn, setIsLoggedIn, checkAuth } = useAuth();
+    const router = useRouter();
+
+    const handleAuthAction = async () => {
+        if (isLoggedIn) {
+            try {
+                await signOut();
+                setIsLoggedIn(false);
+                router.push('/');
+            } catch (error) {
+                console.error('Logout failed:', error);
+                // If tokens were cleared during signOut attempt, update the UI
+                if (!isAuthenticated()) {
+                    setIsLoggedIn(false);
+                    router.push('/');
+                }
+            }
+        } else {
+            router.push('/auth');
+        }
+    };
 
     return (
         <div className="flex items-center min-w-full w-full fixed justify-center p-2 z-[50] mt-[2rem]">
@@ -49,9 +72,9 @@ export function NavBar() {
                                 </Link>
                             </DialogClose>
                             <DialogClose asChild>
-                                <Link href="/projects">
-                                    <Button variant="outline" className="w-full">Sign In/Sign Up</Button>
-                                </Link>
+                                <Button variant="outline" className="w-full" onClick={handleAuthAction}>
+                                    {isLoggedIn ? "Logout" : "Sign In/Sign Up"}
+                                </Button>
                             </DialogClose>
                             <ModeToggle />
                         </div>
@@ -74,15 +97,13 @@ export function NavBar() {
                     <Link href="https://github.com/thomaswolan/stepfree-hoohacks" className="cursor-pointer">
                         <Button variant="ghost" className="cursor-pointer">GitHub</Button>
                     </Link>
-                    <Link href="/auth" className="cursor-pointer">
-                      <Button variant="ghost" className="cursor-pointer">Sign In/Sign Up</Button>
-                    </Link>
-
+                    <Button variant="ghost" className="cursor-pointer" onClick={handleAuthAction}>
+                        {isLoggedIn ? "Logout" : "Sign In/Sign Up"}
+                    </Button>
                     <ModeToggle />
                 </div>
             </div>
         </div>
-
     )
 }
 
