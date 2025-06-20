@@ -1,6 +1,6 @@
 # StepFree - Accessible Transit Navigation
 
-*This project is a fork from a project I worked on with https://github.com/thomaswolan - which we worked on together alongside https://github.com/pressje04 and https://github.com/qnd303 *
+*This project is a fork from a project I worked on with https://github.com/thomaswolan - which we worked on together alongside https://github.com/pressje04 and https://github.com/qnd303*
 
 StepFree is a web application that helps users find wheelchair-accessible transit routes in New York City. The application integrates multiple data sources and services to provide accurate, accessible navigation.
 
