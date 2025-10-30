@@ -1,6 +1,7 @@
 // API client for interacting with the Flask backend
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 interface ApiResponse<T> {
   data?: T;
@@ -14,16 +15,16 @@ interface AuthTokens {
 }
 
 // Token management
-const TOKEN_KEY = 'auth_tokens';
+const TOKEN_KEY = "auth_tokens";
 
 export function getStoredTokens(): AuthTokens | null {
-  if (typeof window === 'undefined') return null;
+  if (typeof window === "undefined") return null;
   const tokens = localStorage.getItem(TOKEN_KEY);
   return tokens ? JSON.parse(tokens) : null;
 }
 
 export function setStoredTokens(tokens: AuthTokens | null): void {
-  if (typeof window === 'undefined') return;
+  if (typeof window === "undefined") return;
   if (tokens) {
     localStorage.setItem(TOKEN_KEY, JSON.stringify(tokens));
   } else {
@@ -40,12 +41,12 @@ async function apiRequest<T>(
     // Add authorization header if we have tokens
     const tokens = getStoredTokens();
     const headers = new Headers({
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...(options.headers as Record<string, string>),
     });
 
     if (tokens) {
-      headers.set('Authorization', `Bearer ${tokens.access_token}`);
+      headers.set("Authorization", `Bearer ${tokens.access_token}`);
     }
 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -60,12 +61,14 @@ async function apiRequest<T>(
       if (response.status === 401) {
         setStoredTokens(null);
       }
-      throw new Error(data.error || 'An error occurred');
+      throw new Error(data.error || "An error occurred");
     }
 
     return { data };
   } catch (error) {
-    return { error: error instanceof Error ? error.message : 'An error occurred' };
+    return {
+      error: error instanceof Error ? error.message : "An error occurred",
+    };
   }
 }
 
@@ -76,8 +79,8 @@ export async function signUp(email: string, password: string) {
     email: string;
     created_at: string;
     message: string;
-  }>('/auth/signup', {
-    method: 'POST',
+  }>("/auth/signup", {
+    method: "POST",
     body: JSON.stringify({ email, password }),
   });
 
@@ -85,11 +88,13 @@ export async function signUp(email: string, password: string) {
 }
 
 export async function signIn(email: string, password: string) {
-  const response = await apiRequest<AuthTokens & {
-    id: string;
-    email: string;
-  }>('/auth/signin', {
-    method: 'POST',
+  const response = await apiRequest<
+    AuthTokens & {
+      id: string;
+      email: string;
+    }
+  >("/auth/signin", {
+    method: "POST",
     body: JSON.stringify({ email, password }),
   });
 
@@ -108,17 +113,17 @@ export async function signIn(email: string, password: string) {
 export async function signOut() {
   try {
     // First try to notify the backend
-    const response = await apiRequest<{ message: string }>('/auth/signout', {
-      method: 'POST',
+    const response = await apiRequest<{ message: string }>("/auth/signout", {
+      method: "POST",
     });
 
     // If successful or if we get any response, clear the tokens
     setStoredTokens(null);
     return response;
   } catch (error) {
-    console.error('Error during signout:', error);
+    console.error("Error during signout:", error);
     // If we get a 401, it means the token is already invalid, so we should clear it
-    if (error instanceof Error && error.message.includes('401')) {
+    if (error instanceof Error && error.message.includes("401")) {
       setStoredTokens(null);
     }
     throw error;
@@ -132,7 +137,7 @@ export async function getCurrentUser() {
     email_verified: boolean;
     last_sign_in: string;
     created_at: string;
-  }>('/auth/user');
+  }>("/auth/user");
 }
 
 // Check if user is authenticated
@@ -143,7 +148,7 @@ export function isAuthenticated(): boolean {
   // Check if token is expired
   const expiresAt = new Date(tokens.expires_at).getTime();
   const now = new Date().getTime();
-  
+
   return expiresAt > now;
 }
 
@@ -155,8 +160,8 @@ export async function insertRouteHistory(
   routeData: object,
   duration: number
 ) {
-  return apiRequest('/routes/history', {
-    method: 'POST',
+  return apiRequest("/routes/history", {
+    method: "POST",
     body: JSON.stringify({
       userId,
       startPoint,
@@ -173,5 +178,5 @@ export async function getRouteHistory(userId: string) {
 
 // Health check
 export async function checkHealth() {
-  return apiRequest('/health');
-} 
+  return apiRequest("/health");
+}
