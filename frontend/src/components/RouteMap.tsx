@@ -129,7 +129,7 @@ export default function RouteMap() {
             : 'orange';
         el.style.border = '2px solid white';
     
-        new mapboxgl.Marker(el)
+        new mapboxgl.Marker(el, { anchor: 'center' })
           .setLngLat([station.lon, station.lat])
           .setPopup(
             new mapboxgl.Popup({ offset: 25 }).setHTML(
@@ -159,7 +159,7 @@ export default function RouteMap() {
       if (localCoords.current.start && localCoords.current.end) {
         cleanupRoute();
         localCoords.current = { start: [lng, lat] };
-        const marker = new mapboxgl.Marker({ color: 'blue' })
+        const marker = new mapboxgl.Marker({ color: 'blue', anchor: 'center' })
           .setLngLat([lng, lat])
           .setPopup(new mapboxgl.Popup().setText(await reverseGeocode([lng, lat])))
           .addTo(map.current!);
@@ -172,7 +172,7 @@ export default function RouteMap() {
 
       if (!localCoords.current.start) {
         localCoords.current.start = [lng, lat];
-        const marker = new mapboxgl.Marker({ color: 'blue' })
+        const marker = new mapboxgl.Marker({ color: 'blue', anchor: 'center' })
           .setLngLat([lng, lat])
           .setPopup(new mapboxgl.Popup().setText(await reverseGeocode([lng, lat])))
           .addTo(map.current!);
@@ -181,7 +181,7 @@ export default function RouteMap() {
         setClickMode('end');
       } else if (!localCoords.current.end) {
         localCoords.current.end = [lng, lat];
-        const marker = new mapboxgl.Marker({ color: 'orange' })
+        const marker = new mapboxgl.Marker({ color: 'orange', anchor: 'center' })
           .setLngLat([lng, lat])
           .setPopup(new mapboxgl.Popup().setText(await reverseGeocode([lng, lat])))
           .addTo(map.current!);
@@ -221,7 +221,7 @@ export default function RouteMap() {
 
     if (routeMarkers.current[role]) routeMarkers.current[role]!.remove();
 
-    const marker = new mapboxgl.Marker({ color: role === 'start' ? 'blue' : 'orange' })
+    const marker = new mapboxgl.Marker({ color: role === 'start' ? 'blue' : 'orange', anchor: 'center' })
       .setLngLat(coords)
       .addTo(map.current);
 
@@ -283,10 +283,21 @@ export default function RouteMap() {
     let nearest = stations[0];
     let minDist = Number.MAX_VALUE;
   
+    // Haversine formula for accurate geographical distance
+    function getDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
+      const R = 6371; // Earth's radius in kilometers
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = 
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+  
     for (const station of stations) {
-      const d = Math.sqrt(
-        Math.pow(station.lat - lat, 2) + Math.pow(station.lon - lng, 2)
-      );
+      const d = getDistance(lat, lng, station.lat, station.lon);
       if (d < minDist) {
         minDist = d;
         nearest = station;
@@ -413,7 +424,7 @@ export default function RouteMap() {
         setStartQuery={setStartQuery}
         setEndQuery={setEndQuery}
       />
-      <div ref={mapContainer} className="h-full w-full pt-16" />
+      <div ref={mapContainer} className="h-full w-full" />
         {routeInfo && (
           <div className="absolute top-10 right-4 bg-white dark:bg-black bg-opacity-10 border border-white border-opacity-20 rounded-xl p-4 shadow-lg w-[320px] max-h-[80vh] overflow-y-auto z-50">
             <button
