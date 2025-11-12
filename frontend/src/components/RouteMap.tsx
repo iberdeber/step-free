@@ -318,9 +318,7 @@ export default function RouteMap() {
     let minDist = Number.MAX_VALUE;
 
     for (const station of stations) {
-      const d = Math.sqrt(
-        Math.pow(station.lat - lat, 2) + Math.pow(station.lon - lng, 2)
-      );
+      const d = getDistance(lat, lng, station.lat, station.lon);
       if (d < minDist) {
         minDist = d;
         nearest = station;
