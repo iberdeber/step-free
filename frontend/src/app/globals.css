@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import 'mapbox-gl/dist/mapbox-gl.css';
+@import "mapbox-gl/dist/mapbox-gl.css";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -122,3 +122,12 @@
   }
 }
 
+.mapboxgl-popup-content {
+  background: var(--popover);
+  color: var(--popover-foreground);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.75rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--border);
+  font-size: 0.95rem;
+}
