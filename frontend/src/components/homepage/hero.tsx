@@ -17,20 +17,15 @@ const Feature = () => {
     <Section>
       <Container className="grid items-stretch">
         <div className="not-prose relative flex h-96 overflow-hidden rounded-lg border">
-          <Image
-            src={Logo}
-            alt="logo"
-            className="fill object-cover"
-          />
+          <Image src={Logo} alt="logo" className="fill object-cover" />
         </div>
         <h3 className="mt-6 text-4xl">
-            <Balancer>
-                Navigate your world, barrier free.
-            </Balancer>
-          </h3>
+          <Balancer>Navigate your world, barrier free.</Balancer>
+        </h3>
         <p className="text-xl mt-4 text-muted-foreground">
           <Balancer>
-            Plan accessible routes, avoid obstacles, and travel with confidence—wherever you need to go.
+            Plan accessible routes, avoid obstacles, and travel with
+            confidence—wherever you need to go.
           </Balancer>
         </p>
         <div className="not-prose mt-5 flex items-center gap-2">

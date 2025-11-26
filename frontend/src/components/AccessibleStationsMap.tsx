@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-'use client';
+"use client";
 
-import { useEffect, useRef } from 'react';
-import mapboxgl from 'mapbox-gl';
+import { useEffect, useRef } from "react";
+import mapboxgl from "mapbox-gl";
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
 type Station = {
   name: string;
-  wheelchair: 'yes' | 'no' | 'limited' | string;
+  wheelchair: "yes" | "no" | "limited" | string;
   lat: number;
   lon: number;
 };
@@ -22,7 +22,7 @@ export default function AccessibleStationsMap() {
 
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
+      style: "mapbox://styles/mapbox/streets-v12",
       center: [-73.9776, 40.6845], // Brooklyn center
       zoom: 13,
     });
@@ -39,9 +39,9 @@ export default function AccessibleStationsMap() {
         out body;
       `;
 
-      const res = await fetch('https://overpass-api.de/api/interpreter', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      const res = await fetch("https://overpass-api.de/api/interpreter", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: `data=${encodeURIComponent(query)}`,
       });
 
@@ -55,20 +55,20 @@ export default function AccessibleStationsMap() {
           lon: el.lon,
         }));
 
-      console.log('Stations loaded:', stations);
+      console.log("Stations loaded:", stations);
 
       stations.forEach((station) => {
-        const el = document.createElement('div');
-        el.style.width = '16px';
-        el.style.height = '16px';
-        el.style.borderRadius = '50%';
+        const el = document.createElement("div");
+        el.style.width = "16px";
+        el.style.height = "16px";
+        el.style.borderRadius = "50%";
         el.style.backgroundColor =
-          station.wheelchair === 'yes'
-            ? 'green'
-            : station.wheelchair === 'no'
-            ? 'red'
-            : 'orange';
-        el.style.border = '2px solid white';
+          station.wheelchair === "yes"
+            ? "green"
+            : station.wheelchair === "no"
+            ? "red"
+            : "orange";
+        el.style.border = "2px solid white";
 
         new mapboxgl.Marker(el)
           .setLngLat([station.lon, station.lat])
@@ -81,7 +81,7 @@ export default function AccessibleStationsMap() {
       });
     };
 
-    map.current.on('load', fetchStations);
+    map.current.on("load", fetchStations);
   }, []);
 
   return <div ref={mapContainer} className="w-full h-screen" />;
