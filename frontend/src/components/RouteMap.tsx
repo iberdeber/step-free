@@ -83,15 +83,30 @@ export default function RouteMap() {
 
     map.current.on("load", async () => {
       const query = `
-        [out:json][timeout:25];
-        area["name"="New York"]["boundary"="administrative"]->.searchArea;
+      [out:json][timeout:25];
+      area["name"="New York"]["boundary"="administrative"]->.searchArea;
+      (
+        // 1. Original Subway Stations
         node
           ["railway"="station"]
           ["station"="subway"]
           ["wheelchair"]
           (area.searchArea);
-        out body;
-      `;
+
+        // 2. Major Bus Stations
+        node
+          ["amenity"="bus_station"]
+          ["wheelchair"]
+          (area.searchArea);
+
+        // 3. Roadside Bus Stops
+        node
+          ["highway"="bus_stop"]
+          ["wheelchair"]
+          (area.searchArea);
+      );
+      out body;
+`;
 
       const res = await fetch("https://overpass-api.de/api/interpreter", {
         method: "POST",
@@ -104,21 +119,29 @@ export default function RouteMap() {
       type WheelmapPoint = {
         id: number;
         name: string;
+        stationType: string;
         wheelchair: string;
         lat: number;
         lon: number;
       };
-
+      console.log("Overpass data loaded:", data.elements);
       const stations: WheelmapPoint[] = data.elements
         .filter((el: any) => el.tags?.name)
-        .map((el: any) => ({
-          id: el.id,
-          name: el.tags.name,
-          wheelchair: el.tags.wheelchair,
-          lat: el.lat,
-          lon: el.lon,
-        }));
-
+        .map((el: any) => {
+          let stationType: string = "train";
+          console.log("Element tags:", el.tags);
+          if (el.tags.bus !== undefined) stationType = "bus";
+          if ("bus" !== undefined && el.tags?.bus == "no")
+            console.log("bus but no?");
+          return {
+            id: el.id,
+            name: el.tags.name,
+            stationType: stationType,
+            wheelchair: el.tags.wheelchair,
+            lat: el.lat,
+            lon: el.lon,
+          };
+        });
       adaStations.current = stations.filter(
         (station) => station.wheelchair === "yes"
       );
@@ -142,7 +165,7 @@ export default function RouteMap() {
             new mapboxgl.Popup({
               offset: 25,
             }).setHTML(
-              `<strong>${station.name}</strong><br/>Wheelchair: ${station.wheelchair}`
+              `<strong>${station.name}</strong><br/>${station.stationType}<br/>Wheelchair: ${station.wheelchair}`
             )
           )
           .addTo(map.current!);
