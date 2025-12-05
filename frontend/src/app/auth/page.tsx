@@ -6,6 +6,16 @@ import { signIn, signUp } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/AuthContext";
 
+function getSupabaseError(err : any): string // helper method that normalizes Supabase errors
+{
+  if (!err) return "Unknown error occurred";
+  if (typeof err === "string") return err;
+  if (err.message) return err.message;
+  if (err.error) return err.error;
+  return String(err);
+}
+
+
 export default function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,13 +35,17 @@ export default function AuthPage() {
     try {
       if (isSignIn) {
         const response = await signIn(email, password);
-        if (response.error) {
-          setError(response.error);
-          return;
-        }
+        
+        if (response.error) { 
+            setError(getSupabaseError(response.error));
+            return;
+          }
+          
         // Successful sign in
         setIsLoggedIn(true);
-        router.push("/");
+        setSuccess("Login successful. Happy Travels!"); // gives message ensuring successful login
+        setTimeout(() => {router.push("/");}, 1500); // redirects after one second
+        
       } else {
         const response = await signUp(email, password);
         if (response.error) {

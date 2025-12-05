@@ -7,12 +7,15 @@ interface AuthContextType {
   isLoggedIn: boolean;
   setIsLoggedIn: (value: boolean) => void;
   checkAuth: () => void;
+  successMessage: string;
+  setSuccess: (msg: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); 
+  const [successMessage, setSuccess] = useState(""); // stores temp success message to show user
 
   const checkAuth = () => {
     setIsLoggedIn(isAuthenticated());
@@ -23,7 +26,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, checkAuth }}>
+    <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, checkAuth, successMessage, setSuccess}}>
       {children}
     </AuthContext.Provider>
   );
