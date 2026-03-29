@@ -38,6 +38,9 @@ type WheelmapPoint = {
 };
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
+// min long, min lat, max long, max lat
+// bounding box to check if input is inside of NYC
+const NYC_BBOX = [-74.25909, 40.477399, -73.700181, 40.917577];
 
 export default function RouteMap() {
   const mapContainer = useRef<HTMLDivElement | null>(null);
@@ -154,6 +157,13 @@ export default function RouteMap() {
 
     map.current.on("click", async (e) => {
       const { lng, lat } = e.lngLat;
+
+      // check that the coords are within the bound box for NYC
+      const[minLng, minLat, maxLng, maxLat] = NYC_BBOX;
+      if (lng < minLng || lat < minLat || lng > maxLng || lat > maxLat){
+        alert('Please select a location inside of New York City Region');
+        return;
+      }
 
       const reverseGeocode = async (coords: [number, number]) => {
         const res = await fetch(
@@ -284,14 +294,19 @@ export default function RouteMap() {
         const res = await fetch(
           `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
             query
-          )}.json?access_token=${accessToken}`
+          )}.json?access_token=${accessToken}&bbox=${NYC_BBOX.join(',')}`
         );
         const data = await res.json();
         const first = data.features?.[0];
-        if (first) {
+
+        const region = first?.context?.find((ctx: any) => 
+          ctx.id.startsWith('region')
+        );
+
+        if (first && region?.short_code === 'US-NY') {
           coords[role] = first.center as [number, number];
         } else {
-          alert(`Could not find ${role} location.`);
+          alert(`Could not find ${role} location in New York City Region`);
           return;
         }
       }
