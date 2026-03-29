@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/AuthContext"
 
 export function NavBar() {
-    const { isLoggedIn, setIsLoggedIn, checkAuth } = useAuth();
+    const { isLoggedIn, setIsLoggedIn, checkAuth, successMessage, setSuccess} = useAuth();
     const router = useRouter();
 
     const handleAuthAction = async () => {
@@ -22,7 +22,9 @@ export function NavBar() {
             try {
                 await signOut();
                 setIsLoggedIn(false);
+                setSuccess("Logged out!");
                 router.push('/');
+                setTimeout(() => setSuccess(""), 4000); // shows that you have logged out on navbar for 4 sec
             } catch (error) {
                 console.error('Logout failed:', error);
                 // If tokens were cleared during signOut attempt, update the UI
@@ -100,6 +102,10 @@ export function NavBar() {
                     <Button variant="ghost" className="cursor-pointer" onClick={handleAuthAction}>
                         {isLoggedIn ? "Logout" : "Sign In/Sign Up"}
                     </Button>
+                    {successMessage && (
+                        <span className="text-red-700 font-medium text-sm">{successMessage}</span> // shows red message 
+                    )}
+
                     <ModeToggle />
                 </div>
             </div>
